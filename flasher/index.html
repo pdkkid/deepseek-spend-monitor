@@ -3,40 +3,83 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DeepSeek Spend Monitor — Flash Firmware</title>
+  <title>DeepSeek Spend Monitor — Flasher</title>
+  <script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"></script>
   <link rel="stylesheet" href="style.css">
-  <script type="module" src="https://unpkg.com/esp-web-tools@10.1.0/dist/web/install-button.js?module"></script>
 </head>
 <body>
   <div class="container">
-    <header>
-      <h1>DeepSeek Spend Monitor</h1>
-      <p class="subtitle">Flash firmware to your ESP32-C3 Supermini — right from Chrome</p>
-    </header>
+    <h1>💰 DeepSeek Spend Monitor</h1>
+    <p class="subtitle">USB flash tool for ESP32-C3 SuperMini</p>
 
-    <div class="card">
-      <h2>1. Connect &amp; Flash</h2>
-      <ol>
-        <li>Plug in your ESP32-C3 Supermini via USB</li>
-        <li>Hold <strong>BOOT</strong> (GPIO9), tap <strong>RST</strong>, release BOOT</li>
-        <li>Click <strong>Connect</strong> below and select your serial port</li>
-        <li>Click <strong>Install</strong> to flash the firmware</li>
-      </ol>
-      <esp-web-install-button manifest="manifest.json"></esp-web-install-button>
-    </div>
+    <esp-web-install-button
+      id="install"
+      manifest="manifest.json"
+    ></esp-web-install-button>
 
-    <div class="card">
-      <h2>2. After Flashing</h2>
-      <ol>
-        <li>Unplug and re-plug the device</li>
-        <li>Connect to WiFi network <strong>"DeepSeekMonitor"</strong></li>
-        <li>Visit <strong>192.168.4.1</strong> to enter your WiFi &amp; API key</li>
-      </ol>
-    </div>
+    <div id="log"><div class="log-line dim">Waiting for you to click Install…</div></div>
 
-    <footer>
-      <a href="https://github.com/pdkkid/deepseek-spend-monitor" target="_blank">Source on GitHub</a>
-    </footer>
+    <p class="help">
+      Plug in the ESP32-C3, click Install, and select the USB serial port.<br>
+      Chrome / Edge on desktop work best. If flashing fails, hold <strong>BOOT</strong> → press <strong>RST</strong> → release <strong>BOOT</strong>.
+    </p>
   </div>
+
+  <script>
+    (function() {
+      var log = document.getElementById('log');
+      var btn = document.getElementById('install');
+
+      function line(text, cls) {
+        var d = document.createElement('div');
+        d.className = 'log-line ' + (cls || '');
+        d.textContent = text;
+        log.appendChild(d);
+        log.scrollTop = log.scrollHeight;
+      }
+
+      // ── state-changed ──
+      btn.addEventListener('state-changed', function(e) {
+        // detail can be a number (0-4) or a string
+        var states = ['Idle', 'Connecting…', 'Erasing…', 'Flashing…', 'Done ✅'];
+        var s = e.detail;
+        var label = (typeof s === 'number' && states[s]) ? states[s] : String(s);
+        line(label, 'blue');
+      });
+
+      // ── erase-progress ──
+      btn.addEventListener('erase-progress', function(e) {
+        var pct = e.detail;
+        // detail may be a number 0-1 or {percentage: number}
+        if (pct && typeof pct === 'object' && pct.percentage !== undefined) {
+          pct = pct.percentage;
+        }
+        pct = Math.round(pct * 100);
+        line('Erasing… ' + pct + '%', 'blue');
+      });
+
+      // ── write-progress ──
+      btn.addEventListener('write-progress', function(e) {
+        var pct = e.detail;
+        if (pct && typeof pct === 'object' && pct.percentage !== undefined) {
+          pct = pct.percentage;
+        }
+        pct = Math.round(pct * 100);
+        line('Flashing… ' + pct + '%', 'blue');
+        if (pct >= 100) line('Flash complete! 🎉 Unplug and wait for the OLED AP.', 'green');
+      });
+
+      // ── error ──
+      btn.addEventListener('error', function(e) {
+        var msg = (e.detail && e.detail.message) || e.detail || 'unknown';
+        line('ERROR: ' + msg, 'red');
+      });
+
+      // ── fallback click log ──
+      btn.addEventListener('click', function() {
+        line('Waiting for serial port…', 'dim');
+      });
+    })();
+  </script>
 </body>
 </html>
