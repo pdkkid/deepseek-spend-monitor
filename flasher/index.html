@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DeepSeek Spend Monitor — Flash Firmware</title>
+  <link rel="stylesheet" href="style.css">
+  <script type="importmap">
+  { "imports": { "esptool": "https://unpkg.com/esptool-js@0.5.0/esptool.mjs" } }
+  </script>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>DeepSeek Spend Monitor</h1>
+      <p class="subtitle">Flash firmware to your ESP32-C3 Supermini — right from Chrome</p>
+    </header>
+
+    <div class="card" id="step-connect">
+      <h2>1. Connect Device</h2>
+      <ol>
+        <li>Plug in your ESP32-C3 Supermini via USB</li>
+        <li>Hold <strong>BOOT</strong> (GPIO9), tap <strong>RST</strong>, release BOOT</li>
+        <li>Click the button below</li>
+      </ol>
+      <button id="btn-connect" class="primary">Connect Serial Port</button>
+      <p id="connect-status" class="status"></p>
+    </div>
+
+    <div class="card hidden" id="step-flash">
+      <h2>2. Flash Firmware</h2>
+      <table>
+        <tr><td>Chip:</td><td id="chip-info">—</td></tr>
+        <tr><td>Firmware:</td><td>v1.0.0</td></tr>
+        <tr><td>Size:</td><td id="fw-size">—</td></tr>
+      </table>
+      <button id="btn-flash" class="primary">Flash Firmware</button>
+      <div class="progress hidden" id="progress-bar">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+      <p id="flash-status" class="status"></p>
+    </div>
+
+    <div class="card hidden" id="step-done">
+      <h2>3. Done!</h2>
+      <p>Firmware flashed successfully.</p>
+      <ol>
+        <li>Unplug and re-plug the device</li>
+        <li>Connect to WiFi network <strong>"DeepSeekMonitor"</strong></li>
+        <li>Visit <strong>192.168.4.1</strong> to enter your WiFi &amp; API key</li>
+      </ol>
+    </div>
+
+    <footer>
+      <a href="https://github.com/USER/deepseek-spend-monitor" target="_blank">Source on GitHub</a>
+    </footer>
+  </div>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

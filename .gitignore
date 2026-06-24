@@ -1,0 +1,11 @@
+.pio/
+.pioenvs/
+.piolibdeps/
+cmake-build-*/
+.vscode/
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+firmware/src/secrets.h
+firmware/build/
