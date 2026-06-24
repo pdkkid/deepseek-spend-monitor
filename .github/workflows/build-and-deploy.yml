@@ -34,13 +34,25 @@ jobs:
           cd firmware
           pio run -e esp32-c3-supermini
 
-      - name: Copy deploy files
+      - name: Install esptool
+        run: pip install esptool
+
+      - name: Merge & copy deploy files
         run: |
+          BUILD=firmware/.pio/build/esp32-c3-supermini
           mkdir -p deploy
-          cp firmware/.pio/build/esp32-c3-supermini/firmware.bin deploy/
+
+          # Merge bootloader + partitions + app into one flashable binary
+          esptool.py --chip esp32c3 merge_bin \
+            --flash_mode dio \
+            --flash_size 4MB \
+            -o deploy/firmware.bin \
+            0x0 $BUILD/bootloader.bin \
+            0x8000 $BUILD/partitions.bin \
+            0x10000 $BUILD/firmware.bin
+
           cp flasher/index.html deploy/
           cp flasher/style.css deploy/
-          cp flasher/app.js deploy/
           cp flasher/manifest.json deploy/
 
       - name: Upload artifact
