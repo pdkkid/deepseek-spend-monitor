@@ -41,6 +41,7 @@ jobs:
           cp flasher/index.html deploy/
           cp flasher/style.css deploy/
           cp flasher/app.js deploy/
+          cp flasher/manifest.json deploy/
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
