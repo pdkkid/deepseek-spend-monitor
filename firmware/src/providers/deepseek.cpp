@@ -40,19 +40,26 @@ bool DeepSeekProvider::fetch(SpendSummary &out) {
 
     JsonObject info = doc["balance_infos"][0];
 
-    String totalStr    = info["total_balance"].as<String>();
-    String toppedUpStr = info["topped_up_balance"].as<String>();
-    String grantedStr  = info["granted_balance"].as<String>();
+    // Helper: parse a JSON field that may be a string or a number
+    auto parseBalance = [](JsonVariant v) -> float {
+        if (v.is<float>())        return v.as<float>();
+        if (v.is<const char*>())  return String(v.as<const char*>()).toFloat();
+        return 0.0f;
+    };
 
-    float total    = totalStr.toFloat();
-    float toppedUp = toppedUpStr.toFloat();
-    float granted  = grantedStr.toFloat();
+    float total    = parseBalance(info["total_balance"]);
+    float toppedUp = parseBalance(info["topped_up_balance"]);
+    float granted  = parseBalance(info["granted_balance"]);
 
     out.currency         = info["currency"].as<String>();
     out.totalTopUp       = toppedUp;
     out.remainingBalance = total;
-    out.totalSpent       = (toppedUp + granted) - total;
+    out.totalSpent       = max(0.0f, (toppedUp + granted) - total);
     out.valid            = true;
+
+    // Serial debug so you can verify values on the monitor
+    Serial.printf("DeepSeek API: total=%.2f toppedUp=%.2f granted=%.2f spent=%.2f\n",
+                  total, toppedUp, granted, out.totalSpent);
 
     return true;
 }

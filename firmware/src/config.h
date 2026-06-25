@@ -7,7 +7,7 @@
 #define OLED_WIDTH      128
 #define OLED_HEIGHT     64
 
-#define REFRESH_INTERVAL_MS   60000
+#define REFRESH_INTERVAL_MS   5000
 #define SCREEN_ROTATION_MS    5000
 
 #define DEEPSEEK_API_HOST      "api.deepseek.com"

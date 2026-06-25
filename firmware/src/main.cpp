@@ -73,5 +73,5 @@ void loop() {
         g_lastFetch = now;
     }
 
-    delay(1000);
+    delay(100);  // short yield — loop checks every ~100ms
 }
